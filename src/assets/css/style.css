@@ -1,1 +1,2 @@
-@import tailwind-directives;
+@import "_tailwind-directives.css";
+@import "_theme.css";
