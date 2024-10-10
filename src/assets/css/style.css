@@ -1,2 +1,3 @@
 @import "_tailwind-directives.css";
 @import "_theme.css";
+@import "./components/index.css";

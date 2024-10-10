@@ -1,0 +1,9 @@
+@layer components {
+	.phone {
+		&-bg {
+			width: 308px;
+			height: 632px;
+			background: url("/images/phone-frame.png") no-repeat center center / 100% 100%;
+		}
+	}
+}
