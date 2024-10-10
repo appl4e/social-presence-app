@@ -1,9 +1,16 @@
 :root {
-	--background: 0 0% 98%;
+	--background: 0 0% 96%;
+	--background-light: 0 0% 98%;
 	--foreground: 0 0% 23%;
-	--primary: 252 100 61;
-	--primary-light: 249 100 96;
+	--primary: 252 100 61%;
+	--primary-light: 249 100 96%;
 	--muted: 0 0% 45%;
+	--muted-light: 0 0% 58%;
 
 	--mantine-font-size-sm: 16px;
+}
+
+body {
+	font-family: "Poppins", sans-serif;
+	@apply text-foreground;
 }

@@ -13,17 +13,17 @@ export const Header = () => {
 			<div className="ms-auto shrink-0 flex items-center gap-x-4">
 				<Link
 					to="/"
-					className="flex items-center gap-x-3 text-muted px-6 h-[42px] font-semibold hover:bg-primary-light hover:text-primary rounded-md transition-all duration-500"
-				>
-					<FaLink />
-					<span className="hidden sm:inline-flex">Links</span>
-				</Link>
-				<Link
-					to="/"
 					className="flex items-center gap-x-3 text-primary bg-primary-light font-semibold px-6 h-[42px]  hover:bg-primary-light hover:text-primary rounded-md  duration-500"
 				>
 					<FaRegUserCircle />
 					<span className="hidden sm:inline-flex">Profile Details</span>
+				</Link>
+				<Link
+					to="/"
+					className="flex items-center gap-x-3 text-muted px-6 h-[42px] font-semibold hover:bg-primary-light hover:text-primary rounded-md transition-all duration-500"
+				>
+					<FaLink />
+					<span className="hidden sm:inline-flex">Links</span>
 				</Link>
 			</div>
 

@@ -1,0 +1,11 @@
+.label {
+	@apply text-base text-muted-light;
+}
+
+.mantine-Input-input {
+	&:focus {
+		/* box-shadow: 0px 0px 9px 1px hsl(var(--primary-light)); */
+		/* @apply shadow-md shadow-purple-400; */
+		@apply shadow-input;
+	}
+}
