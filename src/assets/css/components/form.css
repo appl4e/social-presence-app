@@ -9,3 +9,33 @@
 		@apply shadow-input;
 	}
 }
+
+.profileImageField {
+	position: relative;
+	&:before {
+		content: "";
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 1;
+		@apply absolute left-0 top-0 size-0 opacity-0 scale-0 invisible rounded-xl;
+		transition: opacity 1s 0s, visibility 0s 1s, transform 0s 1s, width 0s 1s, height 0s 1s;
+	}
+	.fileSelector {
+		@apply absolute left-0 top-0 size-0 opacity-0 scale-0 invisible flex flex-col items-center justify-center cursor-pointer;
+		z-index: 2;
+		transition: opacity 1s 0s, visibility 0s 1s, transform 0s 1s, width 0s 1s, height 0s 1s;
+	}
+	&:hover {
+		&:before {
+			@apply size-full opacity-100 visible scale-100;
+			transition: transform 0s 0s, visibility 0s 0s, width 0s 0s, height 0s 0s, opacity 0.4s 0.1s;
+		}
+
+		.fileSelector {
+			@apply size-full visible opacity-100 scale-100;
+			transition: transform 0s 0s, visibility 0s 0s, width 0s 0s, height 0s 0s, opacity 0.4s 0.1s;
+		}
+	}
+	.fileInput {
+		@apply size-0 opacity-0 invisible absolute;
+	}
+}

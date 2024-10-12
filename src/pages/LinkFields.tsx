@@ -44,9 +44,9 @@ export const LinkFields = ({ id, index, remove, item }) => {
 	);
 
 	return (
-		<div className="bg-background rounded-lg p-5 mt-6 space-y-3" id={id} ref={setNodeRef} style={style} {...attributes} {...listeners}>
+		<div className="bg-background rounded-lg p-5 mt-6 space-y-3" ref={setNodeRef} style={style} {...attributes}>
 			<div className="flex items-center">
-				<Button variant="transparent" color="muted" className="flex items-center cursor-pointer" leftSection={<HiMiniBars2 />}>
+				<Button variant="transparent" color="muted" className="flex items-center cursor-move" leftSection={<HiMiniBars2 />} {...listeners}>
 					Link #{index + 1}
 				</Button>
 				{index < 1 ? (

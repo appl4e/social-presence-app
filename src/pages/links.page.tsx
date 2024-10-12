@@ -1,5 +1,5 @@
 import { closestCenter, DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@mantine/core";
 import { useEffect, useState } from "react";
@@ -65,7 +65,7 @@ export const Links = () => {
 
 	const { control, watch } = LinksFormMethods;
 
-	const { fields, append, remove } = useFieldArray({
+	const { fields, append, remove, swap } = useFieldArray({
 		name: "links",
 		control,
 	});
@@ -115,19 +115,10 @@ export const Links = () => {
 		const { active, over } = event;
 
 		if (active.id !== over.id) {
-			console.log(event);
-			console.log(controlledLinksFields);
-			// setValue('links', )
-			const oldIndex = controlledLinksFields.indexOf(active.id);
-			const newIndex = controlledLinksFields.indexOf(over.id);
+			const oldIndex = controlledLinksFields.findIndex((item) => item.id == active.id);
+			const newIndex = controlledLinksFields.findIndex((item) => item.id == over.id);
 
-			const newControlledLinkFields = arrayMove(items, oldIndex, newIndex);
-			setItems(newControlledLinkFields);
-
-			// setItems((items) => {
-
-			// 	return arrayMove(items, oldIndex, newIndex);
-			// });
+			swap(newIndex, oldIndex);
 		}
 	}
 
@@ -146,8 +137,8 @@ export const Links = () => {
 						</div>
 						<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 							<SortableContext items={controlledLinksFields} strategy={verticalListSortingStrategy}>
-								{items?.map((item, index) => (
-									<LinkFields id={item.id} index={index} item={item} remove={remove} key={index} />
+								{controlledLinksFields?.map((item, index) => (
+									<LinkFields id={item.id} index={index} item={item} remove={remove} key={item.id} />
 									// <div
 									// 	className="bg-background rounded-lg p-5 mt-6 space-y-3"
 									// 	key={item.id}
