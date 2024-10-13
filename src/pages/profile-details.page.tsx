@@ -1,24 +1,21 @@
+import { profileDetailsAtom, profileImageAtom } from "@/globalState/profileDetails.atom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Avatar, Button, Input } from "@mantine/core";
-import { useRef, useState } from "react";
+import { Avatar, Button, Input, Popover } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { useAtom } from "jotai";
+import { RESET } from "jotai/utils";
+import { ChangeEvent, useRef, useState } from "react";
 import { CircleStencil, Cropper, CropperRef, ImageRestriction } from "react-advanced-cropper";
 import "react-advanced-cropper/dist/style.css";
 import { useForm } from "react-hook-form";
 import { IoImageOutline } from "react-icons/io5";
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 1024 * 1024 * 8 * 5;
+const MAX_FILE_SIZE = 1024 * 1024 * 2;
 const ACCEPTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/bmp"];
 
 const ProfileDetailsFormSchema = z
 	.object({
-		profileImg: z
-			.any()
-			.optional()
-			.refine((files) => {
-				return files?.size <= MAX_FILE_SIZE;
-			}, `Max image size is 5MB.`)
-			.refine((files) => ACCEPTED_IMAGE_MIME_TYPES.includes(files?.type), "Only PNG, JPG and BMP formats are supported."),
 		firstName: z.string({ required_error: "You must provide a first name" }).min(1, { message: "You must provide a first name" }),
 		lastName: z.string({ required_error: "You have to provide a last name also" }).min(1, { message: "You have to provide a last name also" }),
 		email: z
@@ -32,60 +29,102 @@ const ProfileDetailsFormSchema = z
 type ProfileFormType = z.infer<typeof ProfileDetailsFormSchema>;
 
 export const ProfileDetails = () => {
+	const [profileImage, setProfileImage] = useAtom(profileImageAtom);
+	const [profileDetails, setProfileDetails] = useAtom(profileDetailsAtom);
+
 	const {
 		handleSubmit,
 		register,
 		formState: { errors },
-		setValue,
-		clearErrors,
-		watch,
 	} = useForm<ProfileFormType>({
 		resolver: zodResolver(ProfileDetailsFormSchema),
 		mode: "onChange",
+		defaultValues: {
+			firstName: profileDetails?.firstName || "",
+			lastName: profileDetails?.lastName || "",
+			email: profileDetails?.email || "",
+		},
 	});
 
-	const [croppedLogo, setCroppedLogo] = useState<string | ArrayBuffer | null | File>(null);
-	const [image, setImage] = useState<string | null>(null);
+	const [fileError, setFileError] = useState("");
+	const [uploadedFile, setUploadedFile] = useState<File | null | undefined>(null);
 	const cropperRef = useRef<CropperRef>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [image, setImage] = useState<string | null>(null);
+	const [croppedImage, setCroppedImage] = useState<string>();
+	const [croppedImageData, setCroppedImageData] = useState<string | ArrayBuffer | null | File>(null);
 
-	const newImageUpload = (file) => {
+	const [popoverOpened, handlePopover] = useDisclosure();
+
+	const newImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+		const file = event?.target?.files?.[0];
+		console.log(file);
+		setUploadedFile(file);
 		if (file) {
-			// setFile(value);
-			setCroppedLogo(null);
-			console.log(file);
-			const blob = URL.createObjectURL(file);
+			if (file?.size > MAX_FILE_SIZE) {
+				setFileError("Please try with a file of size below 2MB");
+			} else if (!ACCEPTED_IMAGE_MIME_TYPES.includes(file?.type)) {
+				setFileError("Only PNG, JPG or BMP files are supported");
+			} else {
+				setCroppedImageData(null);
+				setFileError("");
+				// creating blob for the cropper
+				const blob = URL.createObjectURL(file);
+				setImage((prevBlob) => {
+					prevBlob = blob;
+					return prevBlob;
+				});
 
-			setImage(blob);
+				handlePopover.open();
+				// Clear the event target value to give the possibility to upload the same image:
+				event.target.value = "";
+			}
 		}
-		// setFile(null);
 	};
 
-	const closeModal = () => {
-		setValue("profileImg", null, { shouldValidate: true });
-		setImage(null);
-		setCroppedLogo(null);
-		clearErrors();
-	};
+	const saveCroppedImage = () => {
+		if (cropperRef.current) {
+			const croppedImageUrl = cropperRef.current.getCanvas()?.toDataURL();
+			setCroppedImage(croppedImageUrl);
+			setProfileImage(RESET);
+			setProfileImage(croppedImageUrl);
+		}
 
-	// on image crop
-	const onUpdate = () => {
+		// to save the data as blob in formData to send it through any api call.
 		const canvas = cropperRef.current?.getCanvas();
 		if (canvas) {
 			const form = new FormData();
 			canvas.toBlob((blob) => {
 				if (blob) {
-					form.append("file", blob, watch("profileImg").name);
-					setCroppedLogo(form.get("file"));
+					form.append("file", blob, uploadedFile?.name);
+					setCroppedImageData(form.get("file"));
 				}
 			}, "image/jpeg");
 		}
+
+		if (image) {
+			URL.revokeObjectURL(image);
+		}
+		handlePopover.close();
+	};
+
+	const cancelCrop = () => {
+		setImage(null);
+		setCroppedImageData(null);
+		if (image) {
+			URL.revokeObjectURL(image);
+		}
+		handlePopover.close();
 	};
 
 	const onProfileDetailsSubmit = (data) => {
 		// Handle form submission logic here
-		console.log(data);
+		if (data) {
+			setProfileDetails(data);
+		}
+		console.log(croppedImageData);
 	};
+
 	return (
 		<>
 			<form action="" onSubmit={handleSubmit(onProfileDetailsSubmit)}>
@@ -106,58 +145,47 @@ export const ProfileDetails = () => {
 									id="profileImg"
 									className="fileInput"
 									accept="image/png, image/jpeg, image/bmp"
-									{...register("profileImg")}
 									ref={fileInputRef}
 									onChange={(e) => {
 										if (e.target.files?.[0]) {
-											console.log(e.target.files);
-											newImageUpload(e.target.files?.[0]);
-											setValue("profileImg", e.target.files[0], { shouldValidate: true });
+											newImageUpload(e);
 										}
 									}}
 								/>
-								<div className="text-white fileSelector" onClick={() => fileInputRef.current?.click()}>
+								<div className="text-white fileSelector" onClick={() => (fileInputRef.current ? fileInputRef.current?.click() : {})}>
 									<IoImageOutline className="text-[30px]" />
 									<span className="text-base mt-4">Change Image</span>
 								</div>
-								<Avatar src={null} size={194} radius="lg" variant="filled" color="gray.6" />
+								<Popover opened={popoverOpened}>
+									<Popover.Target>
+										<Avatar src={croppedImage ? croppedImage : profileImage || null} size={194} radius="lg" variant="filled" color="gray.6" />
+									</Popover.Target>
+									<Popover.Dropdown>
+										<div className={`mt-4 ${image ? "w-[350px] bg-zinc-200" : ""} `}>
+											<Cropper
+												ref={cropperRef}
+												src={image}
+												stencilComponent={CircleStencil}
+												className="upload-example__cropper"
+												imageRestriction={ImageRestriction.fitArea}
+											/>
+										</div>
+
+										<div className="flex mt-3 gap-3">
+											<Button variant="outline" onClick={cancelCrop}>
+												Cancel
+											</Button>
+											<Button onClick={saveCroppedImage}>Save</Button>
+										</div>
+									</Popover.Dropdown>
+								</Popover>
 							</div>
 							<p className="text-muted-light text-sm font-medium">Image must be below 1024x1024px. Use PNG, JPG or BMP format.</p>
 						</div>
-						{croppedLogo ? (
-							""
-						) : image ? (
-							<>
-								<div className="col-span-3"></div>
-								<div className="col-span-5">
-									<div className={`mt-4 ${image ? "h-[350px] bg-zinc-200" : ""} `}>
-										<Cropper
-											ref={cropperRef}
-											src={image}
-											stencilComponent={CircleStencil}
-											className="upload-example__cropper"
-											imageRestriction={ImageRestriction.fitArea}
-											onUpdate={onUpdate}
-										/>
-									</div>
-								</div>
-							</>
-						) : (
-							""
-						)}
+
 						<div className="col-span-3"></div>
 						<div className="col-span-5">
-							{/* <div className={`mt-4 ${image ? "h-[350px] bg-zinc-200" : ""} `}>
-								<Cropper
-									ref={cropperRef}
-									src={image}
-									stencilComponent={CircleStencil}
-									className="upload-example__cropper"
-									imageRestriction={ImageRestriction.fitArea}
-									onUpdate={onUpdate}
-								/>
-							</div> */}
-							<p className="text-red-500 text-sm mt-2">{errors?.profileImg ? errors?.profileImg?.message?.toString() : ""}</p>
+							<p className="text-red-500 text-sm mt-2">{fileError ? fileError : ""}</p>
 						</div>
 					</div>
 

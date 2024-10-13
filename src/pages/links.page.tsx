@@ -1,8 +1,10 @@
+import { linksAtom } from "@/globalState/links.atom";
 import { closestCenter, DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa";
 import { z } from "zod";
@@ -37,27 +39,7 @@ const LinksValidationSchema = z.object({
 export type LinksFormType = z.infer<typeof LinksValidationSchema>;
 
 export const Links = () => {
-	// const icons: Record<string, React.ReactNode> = {
-	// 	github: <TbBrandGithubFilled />,
-	// 	youtube: <IoLogoYoutube />,
-	// 	linkedin: <ImLinkedin />,
-	// };
-
-	// const platformData = [
-	// 	{ value: "github", label: "Github" },
-	// 	{ value: "youtube", label: "Youtube" },
-	// 	{ value: "linkedin", label: "Linkedin" },
-	// ];
-
-	// const renderSelectOption: SelectProps["renderOption"] = ({ option }) => (
-	// 	<Group flex="1" gap="xs">
-	// 		{icons[option.value]}
-	// 		{option.label}
-	// 	</Group>
-	// );
-
-	const [items, setItems] = useState<any[]>([]);
-
+	const [links, saveLinks] = useAtom(linksAtom);
 	const LinksFormMethods = useForm<LinksFormType>({
 		resolver: zodResolver(LinksValidationSchema),
 		defaultValues: { links: [{ platform: "", link: "" }] },
@@ -65,7 +47,7 @@ export const Links = () => {
 
 	const { control, watch } = LinksFormMethods;
 
-	const { fields, append, remove, swap } = useFieldArray({
+	const { fields, append, remove, swap, replace } = useFieldArray({
 		name: "links",
 		control,
 	});
@@ -80,16 +62,17 @@ export const Links = () => {
 	});
 
 	useEffect(() => {
-		setItems(
-			fields.map((field, index) => {
-				// console.log(field, watchLinksArray[index]);
-				return {
-					...field,
-					...watchLinksArray[index],
-				};
-			})
-		);
-	}, [controlledLinksFields]);
+		if (links.length > 0) {
+			// update(controlledLinksFields, (links) => {
+			// 	links.forEach((item, index) => {
+			// 		links[index] = { ...item, ...links[index].toString() };
+			// 	});
+			// });
+
+			// LinksFormMethods.setValue("links", [...links]);
+			replace(links);
+		}
+	}, [links]);
 
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
@@ -109,6 +92,7 @@ export const Links = () => {
 
 	const onLinksSave = (data: LinksFormType) => {
 		console.log(data);
+		saveLinks(data.links);
 	};
 
 	function handleDragEnd(event) {
@@ -139,81 +123,9 @@ export const Links = () => {
 							<SortableContext items={controlledLinksFields} strategy={verticalListSortingStrategy}>
 								{controlledLinksFields?.map((item, index) => (
 									<LinkFields id={item.id} index={index} item={item} remove={remove} key={item.id} />
-									// <div
-									// 	className="bg-background rounded-lg p-5 mt-6 space-y-3"
-									// 	key={item.id}
-									// 	id={item.id}
-									// 	ref={setNodeRef}
-									// 	style={style}
-									// 	{...attributes}
-									// 	{...listeners}
-									// >
-									// 	<div className="flex items-center">
-									// 		<Button variant="transparent" color="muted" className="flex items-center cursor-pointer" leftSection={<HiMiniBars2 />}>
-									// 			Link #{index + 1}
-									// 		</Button>
-									// 		{index < 1 ? (
-									// 			""
-									// 		) : (
-									// 			<Button variant="transparent" color="muted" className="ms-auto" classNames={{ label: "font-normal" }} onClick={() => remove(index)}>
-									// 				Remove
-									// 			</Button>
-									// 		)}
-									// 	</div>
-									// 	<Select
-									// 		label="Platform"
-									// 		size="lg"
-									// 		value={item.platform}
-									// 		placeholder="Select your platform"
-									// 		leftSection={icons[item.platform]}
-									// 		data={platformData}
-									// 		renderOption={renderSelectOption}
-									// 		{...register(`links.${index}.platform`, { required: true })}
-									// 		onChange={(value) => {
-									// 			setValue(`links.${index}.platform`, value || "");
-									// 			if (value) {
-									// 				clearErrors(`links.${index}.platform`);
-									// 			}
-									// 		}}
-									// 		error={errors?.links?.length ? errors?.links[index]?.platform?.message : ""}
-									// 		classNames={{
-									// 			error: "text-sm",
-									// 		}}
-									// 	/>
-
-									// 	<Input.Wrapper label="Link" error={errors?.links?.length ? errors?.links[index]?.link?.message : ""}>
-									// 		<Input type="text" size="lg" {...register(`links.${index}.link`, { required: true })} leftSection={<FaLink />} />
-									// 	</Input.Wrapper>
-									// </div>
 								))}
 							</SortableContext>
 						</DndContext>
-
-						{/* <Input.Error>{errors?.links?.message}</Input.Error> */}
-
-						{/* <div className="bg-background rounded-lg p-5 mt-6 space-y-3">
-					<div className="flex items-center">
-						<Button variant="transparent" color="muted" className="flex items-center cursor-pointer" leftSection={<HiMiniBars2 />}>
-							Link #2
-						</Button>
-						<Button variant="transparent" color="muted" className="ms-auto" classNames={{ label: "font-normal" }}>
-							Remove
-						</Button>
-					</div>
-					<Select
-						label="Platform"
-						size="lg"
-						value="youtube"
-						placeholder="Select your platform"
-						leftSection={icons["youtube"]}
-						data={platformData}
-						renderOption={renderSelectOption}
-					/>
-
-					<Input.Wrapper label="Link">
-						<Input type="text" size="lg" leftSection={<FaLink />} />
-					</Input.Wrapper>
-				</div> */}
 					</div>
 					<div className="border-t border-gray-300 px-10 py-7 flex justify-end">
 						<Button type="submit" size="lg">
