@@ -61,7 +61,7 @@ export const PreviewContent = () => {
 					: ""}
 				{
 					<>
-						{[...Array(links.length < 4 ? 4 - links.length : 0)]?.map((e, i) => (
+						{[...Array(links.length < 4 ? 4 - links.length : 0)]?.map((_, i) => (
 							<Skeleton height={44} width="100%" mt={16} mx="auto" key={i} />
 						))}
 					</>
