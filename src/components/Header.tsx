@@ -1,7 +1,9 @@
 import { Button } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { FaLink, FaRegUserCircle } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
+import { PreviewModal } from "./PreviewModal";
 
 const pageRoutes = [
 	{ path: "profile-details", label: "Profile Details", icon: <FaRegUserCircle /> },
@@ -10,6 +12,7 @@ const pageRoutes = [
 
 export const Header = () => {
 	const { pathname } = useLocation();
+	const [opened, handlePreviewModal] = useDisclosure();
 
 	console.log(pathname);
 	return (
@@ -47,10 +50,12 @@ export const Header = () => {
 				</Link> */}
 			</div>
 
-			<Button type="button" variant="outline" size="md" className="ms-auto">
+			<Button type="button" variant="outline" size="md" className="ms-auto" onClick={handlePreviewModal.open}>
 				<FiEye className="sm:hidden" />
 				<span className="hidden sm:inline-block">Preview</span>
 			</Button>
+
+			<PreviewModal isOpen={opened} onClose={handlePreviewModal.close} />
 		</header>
 	);
 };

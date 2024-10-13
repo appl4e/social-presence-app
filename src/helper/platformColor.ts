@@ -1,17 +1,13 @@
 export const getPlatformColor = (platformName) => {
 	switch (platformName) {
 		case "github":
-			return "black";
+			return "bg-black";
 		case "linkedin":
-			return "blue-500";
+			return "bg-sky-800";
 		case "youtube":
-			return "red-500";
+			return "bg-red-500";
 		case "facebook":
-			return "blue";
-		case "instagram":
-			return "purple";
-		case "twitter":
-			return "lightblue";
+			return "bg-blue-600";
 		default:
 			return "grey";
 	}

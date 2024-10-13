@@ -4,7 +4,7 @@ import { Button, Group, Input, Select, SelectProps } from "@mantine/core";
 import { useFormContext } from "react-hook-form";
 import { FaLink } from "react-icons/fa";
 import { HiMiniBars2 } from "react-icons/hi2";
-import { ImLinkedin } from "react-icons/im";
+import { ImFacebook, ImLinkedin } from "react-icons/im";
 import { IoLogoYoutube } from "react-icons/io";
 import { TbBrandGithubFilled } from "react-icons/tb";
 import { LinksFormType } from "./links.page";
@@ -28,12 +28,14 @@ export const LinkFields = ({ id, index, remove, item }) => {
 		{ value: "github", label: "Github" },
 		{ value: "youtube", label: "Youtube" },
 		{ value: "linkedin", label: "Linkedin" },
+		{ value: "facebook", label: "Facebook" },
 	];
 
 	const icons: Record<string, React.ReactNode> = {
 		github: <TbBrandGithubFilled />,
 		youtube: <IoLogoYoutube />,
 		linkedin: <ImLinkedin />,
+		facebook: <ImFacebook />,
 	};
 
 	const renderSelectOption: SelectProps["renderOption"] = ({ option }) => (
