@@ -22,9 +22,12 @@ Ensure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/)
 3. Install the dependencies:
   ```bash
   npm install
+```
 4. To start the development server, run: 
   ```bash
   npm run dev
+```
+
 Alternatively, if you've opened the project folder in Visual Studio Code, you can simply press Ctrl + Shift + B to start the project.
 
 After running the project, you can view it in your browser at whatever localhost port Vite has served it (usually shown in the terminal).
