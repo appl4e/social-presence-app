@@ -11,7 +11,7 @@ export const PreviewModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 							<Button type="button" variant="outline" size="md" className="" onClick={onClose}>
 								Back to Editor
 							</Button>
-							<CopyButton value="https://applemahmood.com">
+							<CopyButton value="https://social-presence.vercel.app/">
 								{({ copied, copy }) => (
 									<Button type="button" variant="fill" size="md" className="ms-auto" onClick={copy}>
 										{copied ? "Link copied" : "Share Link"}
