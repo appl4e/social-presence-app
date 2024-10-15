@@ -10,7 +10,7 @@ import { IoLogoYoutube } from "react-icons/io";
 import { TbBrandGithubFilled } from "react-icons/tb";
 import { Link } from "react-router-dom";
 
-export const PreviewContent = () => {
+export const PreviewContent = ({ showSkeleton = false }: { showSkeleton?: boolean }) => {
 	const profileImage = useAtomValue(profileImageAtom);
 	const profileDetails = useAtomValue(profileDetailsAtom);
 	const links = useAtomValue(linksAtom);
@@ -61,9 +61,9 @@ export const PreviewContent = () => {
 					: ""}
 				{
 					<>
-						{[...Array(links.length < 4 ? 4 - links.length : 0)]?.map((_, i) => (
-							<Skeleton height={44} width="100%" mt={16} mx="auto" key={i} />
-						))}
+						{showSkeleton
+							? [...Array(links.length < 4 ? 4 - links.length : 0)]?.map((_, i) => <Skeleton height={44} width="100%" mt={16} mx="auto" key={i} />)
+							: ""}
 					</>
 				}
 			</div>
